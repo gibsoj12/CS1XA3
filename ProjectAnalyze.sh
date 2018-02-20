@@ -22,8 +22,7 @@ else
 			echo "Local repo up to date with remote."
 		else
 			echo "Local repo not up to date with remote."
-			echo "Would you like to attempt to update? (Y/N)"
-			read varDecision
+			read -p "Would you like to attempt to update? (Y/N):"  varDecision
 
 		#Ask the user if they would like to update.
 
@@ -35,10 +34,11 @@ else
 
 		}
 	uncommitted(){
+	
+		#Redirect the differences to the log.
 
-		git diff > changes.log		
-		echo "Differences have been logged, would you like to view them? (Y/N):"
-		read varChoice
+		git diff > changes.log
+		read -p "Differences have been logged, would you like to view them? (Y/N):" varChoice
 		if [ "$varChoice" = "Y" ]
 		then
 			cat changes.log
@@ -54,8 +54,7 @@ else
 
 		#Ask the user if they wish to view the todo log
 
-		echo "All TODO tags have been logged, would you like to view them? (Y/N):"
-		read varChoice	
+		read -p "All TODO tags have been logged, would you like to view them? (Y/N):" varChoice	
 		if [ "$varChoice" = "Y" ]
 		then
 			cat todo.log
@@ -67,6 +66,28 @@ else
 						
 
 			}
+
+	search(){
+		#Ask the user if they are searching for a file name, or the line within the file.
+
+		read -p "Would you like to view file names, or lines containing your search parameter? (file/line):" wantedType
+		read -p "Where would you like to search?" startPoint
+		read -p "Enter the pattern you would like to search for." pattern
+		
+		if [ "$wantedType" = "file" ]
+		then
+			findings=$(find "$startPoint" -type f -print0 | xargs grep -l "$pattern")
+			echo "$findings"
+		
+		elif [ "$wantedType" = "line" ]
+		then
+			findings=$(find "$startPoint" -type -print0 | xargs grep "$pattern")
+
+		else
+
+			echo "Unrecognized arguments, expected one of the following: file, line"
+		fi		
+		}
 
 	if [ "$1" = "compare" ]
 	then
@@ -85,6 +106,11 @@ else
 	elif [ "$1" = "checkHaskell" ]
 	then
 		checkHaskell
+	
+	elif [ "$1" = "search" ]
+		
+		search
+
 	else
 		echo "Command not found, expected one of the following:"
 		echo "compare"
