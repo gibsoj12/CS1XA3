@@ -7,7 +7,7 @@ then
 	echo "Insufficient arguments, requires one argument."
 else
 
-# If compare is called: 
+	# If compare is called: 
 
 	compare(){
 		
@@ -41,7 +41,7 @@ else
 		read -p "Differences have been logged, would you like to view them? (Y/N):" varChoice
 		if [ "$varChoice" = "Y" ]
 		then
-			cat changes.log
+			vim changes.log
 		fi
 			}
 		
@@ -57,14 +57,27 @@ else
 		read -p "All TODO tags have been logged, would you like to view them? (Y/N):" varChoice	
 		if [ "$varChoice" = "Y" ]
 		then
-			cat todo.log
+			vim todo.log
 		fi
 			}
 	
 	checkHaskell(){
 
-						
+			#Find all .hs files, execute an error check, send all error messages to the error log
+			
+			find . -type f -name "*.hs" -exec ghc -fno-code "{}" \; 2>> error.log
 
+			if [ "$(wc -l error.log)" -eq 0 ]
+			then
+				echo "No errors have been found."
+			else
+
+				read -p "Errors have been logged, would you like to view them? (Y/N):" varChoice
+				if [ "$varChoice" = "Y" ]
+				then
+					vim error.log
+				fi
+			fi					
 			}
 
 	search(){
@@ -88,6 +101,17 @@ else
 			echo "Unrecognized arguments, expected one of the following: file, line"
 		fi		
 		}
+	findFile(){
+			
+			#Find location of a file
+			read -p "Please enter the name of the file you are looking for." fileName
+			if [ -e "$fileName" ]
+			then
+				echo "The location of your file is: " echo "($readlink -f "$fileName")"
+			else
+				echo " "$fileName" does not exist."
+			fi	
+			}
 
 	if [ "$1" = "compare" ]
 	then
@@ -108,13 +132,20 @@ else
 		checkHaskell
 	
 	elif [ "$1" = "search" ]
-		
+	then	
 		search
-
+	
+	elif [ "$1" = "findFile" ]
+	then
+		findFile
+	
 	else
 		echo "Command not found, expected one of the following:"
 		echo "compare"
 		echo "uncommitted"
 		echo "todo"
 		echo "checkHaskell"
+		echo "search"
+		echo "findFile"
 	fi
+fi
