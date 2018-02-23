@@ -84,17 +84,17 @@ else
 		#Ask the user if they are searching for a file name, or the line within the file.
 
 		read -p "Would you like to view file names, or lines containing your search parameter? (file/line):" wantedType
-		read -p "Where would you like to search?" startPoint
 		read -p "Enter the pattern you would like to search for." pattern
 		
 		if [ "$wantedType" = "file" ]
 		then
-			findings=$(find "$startPoint" -type f -print0 | xargs grep -l "$pattern")
+			findings=$(grep -rl -e ${pattern})
 			echo "$findings"
 		
 		elif [ "$wantedType" = "line" ]
 		then
-			findings=$(find "$startPoint" -type -print0 | xargs grep "$pattern")
+			findings=$(grep -r -e ${pattern})
+			echo "$findings"
 
 		else
 
@@ -105,9 +105,9 @@ else
 			
 			#Find location of a file
 			read -p "Please enter the name of the file you are looking for." fileName
-			if [ -e "$fileName" ]
+			if [ $(find . -name "$fileName" -type f | wc -l) -gt 0 ]
 			then
-				echo "The location of your file is: " echo "($readlink -f "$fileName")"
+				echo "The location of your file is: " echo "$(readlink -f ${fileName})"
 			else
 				echo " "$fileName" does not exist."
 			fi	
