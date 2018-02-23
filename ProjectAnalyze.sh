@@ -49,8 +49,7 @@ else
 
 		#Take all lines containing the tag todo and write them to the log
 
-		todoStuff=$(grep -r "#TODO")
-		todoStuff > todo.log
+		grep -r -e "#TODO" > todo.log
 
 		#Ask the user if they wish to view the todo log
 
