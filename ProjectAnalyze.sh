@@ -112,6 +112,38 @@ else
 			fi	
 			}
 
+	deleteOld(){
+		
+		#List all files which have not been accessed within the last 30 days
+		unused=$(find . -atime +30 -type f)
+		echo "$unused"
+
+		#Create an array where each element is a file path
+
+		mapfile -t old_files < <(find . -atime +30 -type f)
+
+		#Ask user if they would like to delete a file
+
+		read -p "Is there a file you would like to delete? (Y/N):" wantDelete
+		if [ "$wantDelete" = "Y" ]
+		then	
+			read -p "Specify the line which the file you would like to delete appears (beginning with 0). " fileDelete
+			read -p "You have selected: ${old_files["$fileDelete"]} is this correct? (Y/N): "
+			if [ "$choice" = "Y" ]
+			then
+				rm ${old_files["$fileDelete"]}
+
+			elif [ "$choice" = "N" ]
+			then
+				echo "Please retry."
+			fi
+		else
+			echo "No files will be deleted."
+
+		fi
+
+		}
+
 	if [ "$1" = "compare" ]
 	then
 		
@@ -138,6 +170,10 @@ else
 	then
 		findFile
 	
+	elif [ "$1" = "deleteOld" ]
+	then
+		deleteOld
+
 	else
 		echo "Command not found, expected one of the following:"
 		echo "compare"
@@ -146,5 +182,6 @@ else
 		echo "checkHaskell"
 		echo "search"
 		echo "findFile"
+		echo "deleteOld"
 	fi
 fi
