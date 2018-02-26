@@ -144,6 +144,40 @@ else
 
 		}
 
+	removeLogs(){	#Ask user if they would like to remove log files in current directory as well as subdirectory, adjust depth accordingly.
+
+			read -p "Would you like to delete all log files within subdirectories as well? (Y/N): " decision
+			if [ "$decision" = "Y" ]
+			then
+				#Removes log files in current directory as well as any subdirectories.				
+
+				find . -type f -name "*.log" -exec rm {} \;
+			else
+
+				#removes any .log files in the current directory, does not go into subdirectories.
+			
+				find . -maxdepth 1 -type f -name "*.log" -exec rm "{}" \;
+			fi
+
+			}
+
+	checkPython(){	#Similar to the haskell check, finds all errors associated with files having a .py extension.
+
+			find . -type f -name "*.py" -exec -fno-code "{}" \; | 2>> pythonError.log
+
+			if [ "$(wc -l pythonError.log)" -eq 0 ]
+			then
+				echo "No errors have been found."
+			else
+				read -p "Errors have been found, would you like to view the error log? (Y/N): " decision
+				if ["$decision" = "Y" ]
+				then
+					cat pythonError.log
+				fi
+			fi
+			
+			}
+
 	if [ "$1" = "compare" ]
 	then
 		
@@ -173,6 +207,14 @@ else
 	elif [ "$1" = "deleteOld" ]
 	then
 		deleteOld
+	
+	elif [ "$1" = "removeLogs" ]
+	then
+		removeLogs
+	
+	elif [ "$1" = "checkPython" ]
+	then
+		checkPython
 
 	else
 		echo "Command not found, expected one of the following:"
@@ -183,5 +225,7 @@ else
 		echo "search"
 		echo "findFile"
 		echo "deleteOld"
+		echo "removeLogs"
+		echo "checkPython"
 	fi
 fi

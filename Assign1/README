@@ -19,3 +19,10 @@ findFile - This function prompts the user for the name of a file. It then search
 deleteOld - Reference: https://stackoverflow.com/questions/11426529/reading-output-of-command-into-array-in-bash 
 		This was used as I was having trouble using a loop to correctly input values into my array. This function shows the user all files which have not been accessed within the last 30 days.
 		It then asks the user if they would like to delete a file by providing a line number (0 based), if the user chooses to delete a file it is then removed.
+
+checkPython - Checks the current directory and any subdirectories for .py files which contain errors, it then places the file name and the error found into a pythonError.log file
+		in the directory which the user runs the script. The user is then informed whether or not errors have been found. If errors have been found the user will be asked if they would like
+		to view the log.
+
+removeLogs - The user is asked if they would like to remove any .log files found in the subdirectories as well as the current directory or just the current directory. Based on the users decision
+		any .log files within the range will be deleted.
