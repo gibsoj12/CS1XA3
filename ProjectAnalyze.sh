@@ -49,7 +49,7 @@ else
 
 		#Take all lines containing the tag todo and write them to the log
 
-		grep -r -e "#TODO" > todo.log
+		grep -rh --exclude={*.log,ProjectAnalyze.sh} "#TODO" * > todo.log
 
 		#Ask the user if they wish to view the todo log
 
