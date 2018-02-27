@@ -177,6 +177,22 @@ else
 			fi
 			
 			}
+		
+	changePermission(){	#User can check current permissions of a file, and then modify them if they wish
+				
+				read -p "Please enter the filename you would like the check permissions for. " fileName
+				permissions="$(stat "$fileName")"
+				echo "Current permissions are: "$permissisons""
+				read -p "Would you like to change the permissions of this file? (Y/N): " decision
+				if [ "$decision" = "Y" ]
+				then
+					read -p "Please enter the permissions you would like to add. " permissions
+					chmod "$permissions" "$fileName"
+				
+				fi
+
+				}	
+
 
 	if [ "$1" = "compare" ]
 	then
@@ -216,6 +232,10 @@ else
 	then
 		checkPython
 
+	elif [ "$1" = "changePermission" ]
+	then
+		changePermission
+
 	else
 		echo "Command not found, expected one of the following:"
 		echo "compare"
@@ -227,5 +247,6 @@ else
 		echo "deleteOld"
 		echo "removeLogs"
 		echo "checkPython"
+		echo "changePermission"
 	fi
 fi
