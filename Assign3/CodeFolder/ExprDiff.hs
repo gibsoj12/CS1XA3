@@ -4,10 +4,12 @@
 
 
 module ExprDiff where
---import ExprType
+import ExprType
+import ExprEval
 import qualified Data.Map as Map
 
-{-Class DiffExpr:
+{-
+Class DiffExpr:
     Differentiable Expressions
 ----------------------------------
 -This class has methods over the Expr datatype
@@ -21,25 +23,16 @@ import qualified Data.Map as Map
     e2 = y + x
     simplify e1 == simplify e2
 -partDiff : given a var identifier, differentiate IN TERMS of that identifier
+
+
 -}
 
-{-
-
-class DiffExprs a where
-    eval :: Map.Map String a -> Expr a -> a
-    simplify :: Map.Map String a -> Expr a -> Expr a
+class (EvalExpr a) => DiffExprs a where
     partDiff :: String -> Expr a -> Expr a
 {- Default Methods -}
-    (!+) :: Expr a -> Expr a -> Expr a
-    e1 !+ e2        = simplify (Map.fromList []) $ Add e1 e2
-    (!*) :: Expr a -> Expr a -> Expr a
-    e1 !* e2        = simplify (Map.fromList []) $ Mult e1 e2
-    val :: a -> Expr a
-    val x           = Const x
-    var :: String -> Expr a
-    var x           = Var x
 
--}
+
+
 
 {-Most intuitive instance of DiffExpr
 -Num instance only relies on +
@@ -49,16 +42,16 @@ class DiffExprs a where
 -   partDiff : 
 -}
 
-{-
 
-instance (Num a) => DiffExpr a where --Might want to split into something like integral a and floating a
+
+instance DiffExpr Double where --Might want to split into something like integral a and floating a
     eval vrs (Add e1 e2)            = eval vrs e1 + eval vrs e2
     eval vrs (Mult e1 e2)           = eval vrs e1 * eval vrs e2
     eval vrs (Const x)              = x
     eval vrs (Var x)                = case map.lookup x vrs of
                                         Just v  -> v
                                         Nothing -> error "failed lookup in eval"
+    eval vrs (Sine e1)              = 
     simplify _ e                    = e -- #TODO finish
     partDiff _ e                    = e -- #TODO finish 
 
--}
