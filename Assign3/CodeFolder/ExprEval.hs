@@ -56,21 +56,21 @@ checkInfinity :: (Num a) -> Bool
 checkInfinity evaluatedExpr     = let infinity = show evaluatedExpr
                                     in ((infinity == "Infinity") || (infinity == "-Infinity"))
 
-instance EvalExpr Double where
+instance (ForceFit a) => EvalExpr a where
     eval vrs (Add e1 e2)        = fmap (+) ((eval vrs e1) <*> (eval vrs e2))
     eval vrs (Mult e1 e2)       = fmap (*) ((eval vrs e1) <*> (eval vrs e2))
     eval vrs (Neg e)            = fmap (-1*) (eval vrs e)
-    eval vrs (Sine e)           = fmap sin (eval vrs e)
-    eval vrs (Cosine e)         = fmap cos (eval vrs e)
+    eval vrs (Sine e)           = fmap forceFitSin (eval vrs e)
+    eval vrs (Cosine e)         = fmap forceFitCos (eval vrs e)
     eval vrs (Ln e)             = case (eval vrs e) of
                                         AValue r -> if r <= 0 
                                                         then AnError "Natural log is not defined for values less than or equal to zero"
-                                                    else AValue (log r)
+                                                    else AValue (forceFitLn r)
                                         AnError err -> AnError err
     eval vrs (Lawg e1 e2)       = case (eval vrs e1, eval vrs e2) of
                                         (AValue r1, AValue r2)  -> if (r1 || r2) <= 0
                                                                         then AnError "Logarithm is not defined for values less than or equal to zero"
-                                                                   else AValue (logBase r1 r2)
+                                                                   else AValue (forceFitLog r1 r2)
                                         (AnError err, _)        -> AnError err
                                         (_, AnError err)        -> AnError err
     eval vrs (Inv e)            = case (eval vrs e) of 
@@ -81,14 +81,14 @@ instance EvalExpr Double where
     eval vrs (Pow e1 e2)        = case (eval vrs e1, eval vrs e2) of
                                         (AValue r1, AValue r2)  -> if (r1 && r2) == 0
                                                                      then AnError "Base zero, exponent zero is undefined."
-                                                                   else let value = r1 ** r2
+                                                                   else let value = forceFitPow r1 r2
                                                                         in  if (checkInfinity value)
                                                                                 then AnError "Infinity error" 
                                                                             else (AValue value)
                                         (AnError err ,_)        -> AnError err
                                         (_,AnError err)         -> AnError err
     eval vrs (Exp e)            = case (eval vrs e) of
-                                        AValue r        -> let value = exp r
+                                        AValue r        -> let value = forceFitExp r
                                                             in  if (checkInfinity value)
                                                                     then AnError "Infinity error."
                                                                 else (AValue value)
@@ -117,6 +117,7 @@ instance EvalExpr Double where
     
     --Negation simplification
 
+    simplify vrs (Neg (Neg e))              = simplify vrs e -- Double negation
     simplify vrs (Neg e)                    = Neg (simplify vrs e) --Negate the simplified expression
     
     --Multiplication simplification
@@ -172,6 +173,29 @@ instance EvalExpr Double where
                                                             AnError err -> error err
     simplify vrs (Pow e1 e2)                        = Pow (simplify vrs e1) (simplify vrs e2)
 
+    --Natural Log simplification
+
+    simplify vrs (Ln (Exp e))                       = simplify vrs e -- Just simplify the expression in the exponent of the natural power
+    simplify vrs (Ln (Inv e))                       = Neg (simplify vrs (Ln e)) -- If inverse inside of log, negate the log and simplify the new expression
+    simplify vrs (Ln (Const x))                     = case eval vrs (Ln (Const x)) of
+                                                            AValue val  -> Const val -- If the expression can be evaluated, do so
+                                                            AnError err -> error err
+    simplify vrs (Ln e)                             = Ln (simplify vrs e) -- If does not match any above, simplify the expression and return the natural log of this
+
+    --Log with Base simplification
+
+    simplify vrs (Lawg e1 (Pow e2 e3))              = case eval vrs e1 == eval vrs e2 of
+                                                            True    -> simplify vrs e3 -- If the bases match, can be rewritten
+                                                            False   -> Lawg (simplify vrs e1) (simplify vrs (Pow e2 e3)) -- Bases don't match then just simplify the expressions
+    simplify vrs (Lawg e1 (Const x))                = case x <= 0 of
+                                                            True    -> error "Domain error" --If the constant is less than or equal to zero, domain error
+                                                            False   -> Lawg (simplify vrs e1) (Const x) -- Else, simplify the base and 
+    simplify vrs (Lawg e1 (Inv e2))                 = Neg $ Lawg (simplify vrs e1) (simplify vrs e2) -- As with natural log, we can write these as the negative log of the expression
+    simplify vrs (Lawg e (Var x))                   = Lawg (simplify vrs e) (Var x) -- Only need to simplify the base
+    simplify vrs (Lawg (Var x) e)                   = Lawg (Var x) (simplify vrs e) -- Again only need to simplify the expression
+    simplify vrs (Lawg (Var x) (Var y))             = Lawg (Var x) (Var y) -- This is a base case
+    simplify vrs (Lawg e1 e2)                       = Lawg (simplify vrs e1) (simplify vrs e2) --If no other cases match, just do the most obvious thing
+
     --Trig simplification
 
     simplify vrs (Cosine (Var x))                   = Cosine (Var x) -- Just leave this as is, it is a base case
@@ -195,3 +219,45 @@ instance EvalExpr Double where
                                                             Just v -> AValue v
                                                             Nothing -> error "Failed lookup"
     
+--This idea is taken from Chenc, basically the idea is to force the above instance to work for all nums
+
+class (Num a) => ForceFit a where
+    forceFitCos :: a -> a -- Cosine
+    forceFitSin :: a -> a -- Sine
+    forceFitExp :: a -> a -- Natural exponent
+    forceFitLn :: a -> a -- Natural logarithm
+    forceFitPow :: a -> a -> a -- Power with base 
+    forceFitLog :: a -> a -> a -- Logarithm with base
+
+instance ForceFit Double where
+    forceFitCos x           = cos x -- For double, everything is really just normal
+    forceFitSin x           = sin x -- Same as above
+    forceFitExp x           = exp x -- Natural exponent
+    forceFitLn x            = log x -- natural log
+    forceFitPow x y         = x ** y -- power expression
+    forceFitLog x y         = LogBase x y -- log with base
+
+instance ForceFit Float where --Everything is the same as Double
+    forceFitCos x           = cos x -- For double, everything is really just normal
+    forceFitSin x           = sin x -- Same as above
+    forceFitExp x           = exp x -- Natural exponent
+    forceFitLn x            = log x -- natural log
+    forceFitPow x y         = x ** y -- power expression
+    forceFitLog x y         = LogBase x y -- log with base  
+
+instance ForceFit Integer where --This instance is different, everything needs to be taken from integral and then rounded
+    forceFitCos x           = round $ cos $ fromIntegral x 
+    forceFitSin x           = round $ sin $ fromIntegral x 
+    forceFitExp x           = round $ exp $ fromIntegral x 
+    forceFitLn x            = round $ log $ fromIntegral x 
+    forceFitPow x y         = round $ (fromIntegral x) ** (fromIntegral y)
+    forceFitLog x y         = round $ logBase (fromIntegral x) (fromIntegral y)
+
+instance ForceFit Int where --This instance will be very similar to the previous
+    forceFitCos x           = round $ cos (fromIntegral x)
+    forceFitSin x           = round $ sin (fromIntegral x)
+    forceFitExp x           = round $ exp (fromIntegral x)
+    forceFitLn x            = round $ log (fromIntegral x)
+    forceFitPow x y         = round $ (fromIntegral x) ** (fromIntegral y)
+    forceFitLog x y         = round $ logBase (fromIntegral x) (fromIntegral y)
+
