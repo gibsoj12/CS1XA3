@@ -32,12 +32,12 @@ data Expr a = Add (Expr a) (Expr a)
 
 ### Operations:
 
--Addition -> `x+1`
--Multiplication    -> `x*2`
--Division   -> `x/2` 
--Power Expression   -> `x^2`
--Log With Base  -> `log(x,x+1)` (Note it is important to seperate the expressions by a comma)
--Trig   -> `cos(x)` -> `sin(x)`
--Natural exponent   -> `exp(x)`
--Negation   -> `-x`
--Inverse    -> `inv(x)`
+- Addition -> `x+1`
+- Multiplication    -> `x*2`
+- Division   -> `x/2` 
+- Power Expression   -> `x^2`
+- Log With Base  -> `log(x,x+1)` (Note it is important to seperate the expressions by a comma)
+- Trig   -> `cos(x)` -> `sin(x)`
+- Natural exponent   -> `exp(x)`
+- Negation   -> `-x`
+- Inverse    -> `inv(x)`
