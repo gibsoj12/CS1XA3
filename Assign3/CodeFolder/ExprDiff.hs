@@ -32,10 +32,15 @@ instance (ForceFit a) => DiffExpr a where
     partDiff vrs (Cos e)                = Mult (partDiff vrs e) (Neg (Sin e)) -- differentiate the inner expression, then multiply by the negative sin of the original expression
     partDiff vrs (Sin e)                = Mult (partDiff vrs e) (Cos e) -- Same as above, however the derivative of sin is cos, no negative needed
     partDiff vrs (Exp e)                = Mult (partDiff vrs e) (Exp e) -- differentiate the expression, then multiply by e^expression
+    partDiff vrs (Inv e)                = Mult (Neg (partDiff vrs e) (Inv (Pow e (Const 2)))) -- | Multiply by -partDiff and square the denom
     partDiff vrs (Ln e)                 = Mult (partDiff vrs e) (Inv e) -- differentiate the expression, multiply by the inverse of the original expression
     partDiff vrs (Neg e)                = Neg (partDiff vrs e) -- Differentiate the expression, then negate it
-    partDiff vrs (Pow e1 e2)            = partDiff (Exp (Mult e1 (Ln e2))) -- Fix this
-
+    partDiff vrs (Pow e1 e2)            = partDiff (Exp (Mult e1 (Ln e2))) -- Placing the expression in this form makes it much nicer to deal with
+    partDiff vrs (Lawg e1 e2)           = partDiff (Mult (Ln e2) (Inv (Ln e1))) -- Creates a form which is more easily dealt with
+    partDiff vrs (Const x)              = Const 0 -- | Any constant becomes 0
+    partDiff vrs (Var x)                = case vrs == x of
+                                            True        -> (Const 1)
+                                            False       -> (Const 0)
 
 
 

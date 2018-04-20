@@ -4,7 +4,7 @@ import Data.List
 Expression data type
 ~~~~~~~~~~~~~~~~~~~~
 
-wraps different Operations in a expression tree
+wraps different Operations in an expression tree
         Ops:
 Add - Standard addition
 Neg - Standard negation (i.e *-1)
@@ -13,7 +13,7 @@ Const - wrapper for regular value
 Var - String identifier for variables
 Sine - Sin function
 Cosine - Cos function
-Ln - Logarithmic function
+Ln - Natural Logarithmic function
 Lawg - Logarithm with base
 Inv - Inverse of an expression
 Pow - Expression to the exponent of another expression
@@ -32,7 +32,7 @@ data Expr a = Add (Expr a) (Expr a)
             | Inv (Expr a)
             | Pow (Expr a) (Expr a)
             | Exp (Expr a)
-    deriving Eq
+    deriving (Show, Eq)
 
 {-
         getVars

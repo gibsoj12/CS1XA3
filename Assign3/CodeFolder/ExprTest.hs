@@ -2,6 +2,7 @@ module ExprTest where
 
 import ExprtType
 import ExprDiff
+import ExprEval
 import ExprPretty
 import ExprParser
 import qualified Data.Map as Map
