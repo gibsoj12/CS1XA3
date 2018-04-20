@@ -1,3 +1,14 @@
+{-|
+Module      : ExprParser
+Description : Contains methods for parsing input of the type Expr
+Copyright   : (c) Jeff Gibson @2018
+License     : WTFPL
+Maintainer  : None
+Stability   : Experimental
+Portability : MSDOS
+
+-}
+
 module ExprParser where
 
 import ExprType
@@ -9,7 +20,8 @@ import Text.Parsec.String
 {- Parser
 ---------------------------
 -Takes a string of format:
-    (decide on format)
+    >>> \"log(x+1,y)\"
+    >>> \"exp(x)\"
 -parses an expression of Expr
 -}
 
@@ -48,51 +60,51 @@ exprInteger         = let
                     in (terms `chainl1` addOp)
 
 parseHighestDouble :: Parser (Expr Double)
-parseHighestDouble    = (do {cons <- parseConstantDouble; return cons}) <|> (do {var <- many1 alphaNum; return (Var var)})
+parseHighestDouble    = (do {cons <- parseConstantDouble; return cons}) <|> (do {v <- many1 alphaNum; return (var v)})
 
 parseHighestInt :: Parser (Expr Integer)
-parseHighestInt    = (do {cons <- parseConstantInteger; return cons}) <|> (do {var <- many1 alphaNum; return (Var var)})
+parseHighestInt    = (do {cons <- parseConstantInteger; return cons}) <|> (do {v <- many1 alphaNum; return (var v)})
 
 parseConstantDouble :: Parser (Expr Double)
 parseConstantDouble   = do
                 cons <- double
-                return (Const cons)
+                return (val cons)
 
 parseConstantInteger :: Parser (Expr Integer)
 parseConstantInteger   = do 
                 cons <- integer
-                return (Const cons)
+                return (val cons)
 
-parseLogBase :: (ForceFit a) => Parser (Expr a) -> Parser (Expr a)
+parseLogBase :: (ForceFit a) => Parser (Expr a) -> Parser (Expr a) -- Used specifically to parse the log with base as this function has a different form from others
 parseLogBase parsed             = do {symbol "log(";
                                         first <- parsed;
                                         symbol ",";
                                         second <- parsed;
                                         symbol ")";
-                                        return (Lawg first second)}
+                                        return (lawg first second)}
 
-parseTrigAndLog :: (ForceFit a) => Parser (Expr a) -> Parser (Expr a)
-parseTrigAndLog parsed          =   unaryFuncs "sin" sine parsed
+parseTrigAndLog :: (ForceFit a) => Parser (Expr a) -> Parser (Expr a) -- Used to parse unary functions
+parseTrigAndLog parsed          =   unaryFuncs "sin" sine parsed 
                                     <|> unaryFuncs "cos" cosine parsed
                                     <|> unaryFuncs "exp" ex parsed
                                     <|> unaryFuncs "inv" Inv parsed
                                     <|> unaryFuncs "ln" ln parsed
 
-unaryFuncs :: String -> (Expr a -> Expr a) -> Parser (Expr a) -> Parser (Expr a)
+unaryFuncs :: String -> (Expr a -> Expr a) -> Parser (Expr a) -> Parser (Expr a) -- Helper to parse unary functions
 unaryFuncs str1 func parsed      = do {symbol str1;
                                         apply <- parsed;
                                         return (func apply) }
 
-powOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a)
+powOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a) -- Parses power expressions
 powOp       = do { symbol "^";
                     return (!^)}
 
-addOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a)
+addOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a) -- Parses addition expressions
 addOp       = do { symbol "+";
                     return (!+) }
                 <|> do { symbol "-"; return (!-) }
 
-mulOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a)
+mulOp :: (ForceFit a) => Parser (Expr a -> Expr a -> Expr a) -- Parses multiplication expressions
 mulOp       = do { symbol "*";
                     return (!*) }
                 <|> do { symbol "/"; return (!/) }

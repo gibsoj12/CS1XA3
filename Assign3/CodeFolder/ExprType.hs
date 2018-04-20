@@ -1,3 +1,14 @@
+{-|
+Module      : ExprType
+Description : Contains an expression data type
+Copyright   : (c) Jeff Gibson @2018
+License     : WTFPL
+Maintainer  : None
+Stability   : Experimental
+Portability : MSDOS
+
+-}
+
 module ExprType where
 import Data.List
 {-
@@ -32,7 +43,7 @@ data Expr a = Add (Expr a) (Expr a)
             | Inv (Expr a)
             | Pow (Expr a) (Expr a)
             | Exp (Expr a)
-    deriving (Show, Eq)
+    deriving Eq
 
 {-
         getVars
