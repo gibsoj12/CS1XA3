@@ -1,4 +1,4 @@
-# Assignment 3
+# Math Library
 
 ## References:
 
@@ -8,15 +8,36 @@
 ### Functionality:
 -Able to parse expressions of the proceeding form
 -Able to partially or completely evaluate expressions
+-Able to perform partial differentiation on expressions
 
-### Parsing:
 
--To write an addition expression, seperate variables by `+` i.e `x+1`
--To write a multiplication expression, seperate variables by `*`, for division use `/` i.e `x*2` or `x/2`
--To write a power expression, use the `^` symbol i.e `x^2`
--To write a log with base expression, type `log(e1,e2)` it is important to include the brackets,
-and the expressions must be comma seperated. i.e `log(x,x+1)`
-- To write any trig functions (cos,sin) place the expression within brackets, this is the same for ln,exp
-i.e `cos(x)`,`sin(x)`,`ln(x)`,`exp(x)`
--To negate an expression use `-` i.e `-x`
--To write an inverse expression use inv(expression) i.e `inv(x)`
+### Expression Type:
+
+```Haskell
+
+data Expr a = Add (Expr a) (Expr a)
+            | Neg (Expr a)
+            | Mult (Expr a) (Expr a)
+            | Const a
+            | Var String
+            | Sine (Expr a)
+            | Cosine (Expr a)
+            | Ln (Expr a)
+            | Lawg (Expr a) (Expr a) 
+            | Inv (Expr a)
+            | Pow (Expr a) (Expr a)
+            | Exp (Expr a
+
+```
+
+### Operations:
+
+-Addition -> `x+1`
+-Multiplication    -> `x*2`
+-Division   -> `x/2` 
+-Power Expression   -> `x^2`
+-Log With Base  -> `log(x,x+1)` (Note it is important to seperate the expressions by a comma)
+-Trig   -> `cos(x)` -> `sin(x)`
+-Natural exponent   -> `exp(x)`
+-Negation   -> `-x`
+-Inverse    -> `inv(x)`
