@@ -124,9 +124,9 @@ instance (ForceFit a) => EvalExpr a where
                                         Just v -> AValue v
                                         Nothing -> error "Failed lookup"
 
-    {-Simplification of expressions-}
+    {-| Simplification of expressions-}
 
-    --Addition simplification
+    -- | Addition simplification
     
     simplify vrs (Add e1 e2)        = 
         let simpleE1  = simplify vrs e1 -- Simplify each expression
@@ -145,7 +145,7 @@ instance (ForceFit a) => EvalExpr a where
                                                     else Add (Lawg e1' e2') (Lawg e3' e4') -- Otherwise, cannot do any more simplification
                 (ex1,ex2)                       -> Add ex1 ex2 -- If the expressions do not match above, simply add them
     
-    --Negation simplification
+    -- | Negation simplification
 
     simplify vrs (Neg e)                    = let simpleE = simplify vrs e
                                                 in case simpleE of
@@ -155,7 +155,7 @@ instance (ForceFit a) => EvalExpr a where
 
  
     
-    --Multiplication simplification
+    -- | Multiplication simplification
     
     simplify vrs (Mult e1 e2)   = 
         let simpleE1 = simplify vrs e1
@@ -191,7 +191,7 @@ instance (ForceFit a) => EvalExpr a where
             (e1,e2)                         -> Mult e1 e2
     
 
-    --Inverse expression simplification
+    -- | Inverse expression simplification
 
     simplify vrs (Inv e)     =
         let simple1 = simplify vrs e
@@ -202,7 +202,7 @@ instance (ForceFit a) => EvalExpr a where
                                     AnError err -> Inv (Const x)
             e               -> Inv e
 
-    --Natural exponent simplification
+    -- | Natural exponent simplification
     simplify vrs (Exp e1)   = 
         let simple1 = simplify vrs e1
         in case simple1 of
@@ -214,7 +214,7 @@ instance (ForceFit a) => EvalExpr a where
             Ln e                        -> simplify vrs e -- exp(Ln) simplifies to the expression inside of the ln
             e                           -> Exp e
 
-    --Power simplification
+    -- | Power simplification
     simplify vrs (Pow e1 e2)    =
         let simple1 = simplify vrs e1
             simple2 = simplify vrs e2
@@ -229,7 +229,7 @@ instance (ForceFit a) => EvalExpr a where
                                                             False   -> Pow e1 (Lawg e2 e3)
             (e1,e2)                                 -> Pow e1 e2         
 
-    --Natural Log simplification
+    -- | Natural Log simplification
     simplify vrs (Ln e1)    = 
         let
             simple1 = simplify vrs e1
@@ -242,7 +242,7 @@ instance (ForceFit a) => EvalExpr a where
             e               -> Ln e -- If it cannot be simplified by above, then don't.
 
 
-    --Log with Base simplification
+    -- | Log with Base simplification
     
     simplify vrs (Lawg e1 e2)   =
         let simple1 = simplify vrs e1
@@ -267,7 +267,7 @@ instance (ForceFit a) => EvalExpr a where
                                             True    -> Const 1
                                             False   -> Lawg e1' e2'
 
-    --Trig functions
+    -- | Trig functions
     
     simplify vrs (Cosine e) =
         let simple1 = simplify vrs e
@@ -286,17 +286,19 @@ instance (ForceFit a) => EvalExpr a where
             (e)                 -> Sine e -- Only simplification is above
 
     
-    --Constants simplification
+    -- | Constants simplification
 
     simplify vrs (Const x)                          = Const x --A constant is the most simplified form
 
-    --Variables simplification
+    -- | Variables simplification
 
     simplify vrs (Var x)                            = case Map.lookup x vrs of
                                                             Just v -> Const v
                                                             Nothing -> Var x
     
 --This idea is taken from Chenc, basically the idea is to force the above instance to work for all nums
+
+-- | This class is used to allow the same instance to work for all 'Num' types.
 
 class (Num a,Show a,Eq a, Ord a) => ForceFit a where
     forceFitCos :: a -> a -- Cosine

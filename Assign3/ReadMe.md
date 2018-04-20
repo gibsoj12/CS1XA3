@@ -6,9 +6,9 @@
 * [Used chenc118 idea to force-fit everything to work for all integral types](https://github.com/chenc118/CS1XA3/blob/master/Assign3/ExprDiff.hs)
 
 ### Functionality:
--Able to parse expressions of the proceeding form
--Able to partially or completely evaluate expressions
--Able to perform partial differentiation on expressions
+- Able to parse expressions of the proceeding form
+- Able to partially or completely evaluate expressions
+- Able to perform partial differentiation on expressions
 
 
 ### Expression Type:

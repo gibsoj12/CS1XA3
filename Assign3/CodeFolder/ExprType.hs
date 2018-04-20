@@ -31,6 +31,8 @@ Pow - Expression to the exponent of another expression
 Exp - e to the exponent of an expression
 -}
 
+-- | This module defines the type Expr
+
 data Expr a = Add (Expr a) (Expr a)
             | Neg (Expr a)
             | Mult (Expr a) (Expr a)
