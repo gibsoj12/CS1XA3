@@ -1,5 +1,8 @@
 # Math Library
 
+## Documentation can be found here:
+[docs](https://gibsoj12.github.io/docs/ExprEval.html)
+
 ## References:
 
 * [Used deleeuwj1 function which checks for infinity](https://github.com/deleeuwj1/CS1XA3/blob/master/Assign3/Exprs/ExprEval.hs)
