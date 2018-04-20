@@ -122,7 +122,7 @@ instance (ForceFit a) => EvalExpr a where
     eval vrs (Const x)          = AValue x
     eval vrs (Var x)            = case Map.lookup x vrs of
                                         Just v -> AValue v
-                                        Nothing -> error "Failed lookup"
+                                        Nothing -> error "Failed lookup in eval"
 
     {-| Simplification of expressions-}
 
@@ -138,6 +138,7 @@ instance (ForceFit a) => EvalExpr a where
                 (Const x, Add (Const y) (e))    -> Add (Const (x + y)) (simplify vrs e) -- ensure that this follows same logic as above
                 (Var x, Var y)                  -> case x == y of
                                                         True    -> simplify vrs $ Mult (Const 2) (Var x)
+                                                        False   -> Add (Var x) (Var y)
                 (Add (Const x) (e), Const y)    -> Add (Const (x + y)) (simplify vrs e) -- Place this in the above form 
                 (Ln x, Ln y)                    -> simplify vrs (Ln (Mult x y)) -- Place this within a natural log and simplify the inner expression
                 (Lawg e1' e2', Lawg e3' e4')    -> if simplify vrs e1' == simplify vrs e2'

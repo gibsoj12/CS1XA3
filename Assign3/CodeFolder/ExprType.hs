@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveGeneric #-}
 {-|
 Module      : ExprType
 Description : Contains an expression data type
@@ -11,6 +12,9 @@ Portability : MSDOS
 
 module ExprType where
 import Data.List
+import GHC.Generics
+import Generic.Random.Generic
+
 {-
 Expression data type
 ~~~~~~~~~~~~~~~~~~~~
@@ -45,7 +49,7 @@ data Expr a = Add (Expr a) (Expr a)
             | Inv (Expr a)
             | Pow (Expr a) (Expr a)
             | Exp (Expr a)
-    deriving Eq
+    deriving (Eq, Generic)
 
 {-
         getVars
