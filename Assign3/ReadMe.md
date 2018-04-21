@@ -1,5 +1,9 @@
 # Math Library
 
+## NOTE!
+
+- Must install `generic-random` to use the ExprTest module.
+
 ## Documentation can be found here:
 [docs](https://gibsoj12.github.io/docs/ExprEval.html)
 
